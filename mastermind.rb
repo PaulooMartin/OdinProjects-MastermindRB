@@ -4,16 +4,25 @@ class Game
   def initialize(guesser, maker)
     @guesser = guesser
     @maker = maker
+    @combination = ''
   end
 end
 
 class Player
   attr_accessor :role
 
-  def initialize(initial_role, computer: false)
+  def initialize(initial_role, computer)
     @role = initial_role
     @is_computer = computer
   end
+
+  def make_combination
+    return make_combination_computer if @is_computer
+
+    combination_human # ! Don't forget to refactor
+  end
+
+  private
 
   def make_combination_computer
     combination = ''
@@ -23,10 +32,12 @@ class Player
 
       combination.concat(digit.to_s).to_i
     end
-    combination
+    combination.to_i
   end
 
-  def guess_combination_human
+  # TODO: Going to have to refactor because I just realize that guessing and making
+  # TODO: a combination as a human player is the same.
+  def combination_human
     guess = ''
     valid = false
     until valid
