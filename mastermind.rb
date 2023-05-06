@@ -25,4 +25,16 @@ class Player
     end
     combination
   end
+
+  def guess_combination_human
+    guess = ''
+    valid = false
+    until valid
+      puts 'Guess the combination: '
+      guess = gets.chomp
+      valid = true if guess.match?(/^\d\d\d\d$/)
+      valid = false if guess.include?('0') || guess.include?('9')
+    end
+    guess.to_i
+  end
 end
