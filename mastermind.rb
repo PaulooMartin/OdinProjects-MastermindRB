@@ -14,4 +14,15 @@ class Player
     @role = initial_role
     @is_computer = computer
   end
+
+  def make_combination_computer
+    combination = ''
+    until combination.length == 4
+      digit = rand 1..8
+      next if combination.include?(digit.to_s)
+
+      combination.concat(digit.to_s).to_i
+    end
+    combination
+  end
 end
