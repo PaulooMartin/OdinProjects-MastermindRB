@@ -9,13 +9,30 @@ class Game
     @current_guess = ''
   end
 
+  # ! Temp for now
+  # ! For computer vs human for now
+  def start
+    @combination = @maker.make_combination
+    is_win = false
+    until is_win
+      break if @guesses_left.zero?
+
+      @current_guess = @guesser.make_combination
+      is_win = give_feedback_on_guess
+      @guesses_left -= 1
+    end
+  end
+
   private
 
   def give_feedback_on_guess
+    return true if @combination == @current_guess
+
     correct = check_correct_placements
     incorrect = check_incorrect_placements
     puts "Number of correct placement: #{correct}"
     puts "Number of incorrect placement: #{incorrect}"
+    false
   end
 
   def check_correct_placements
@@ -67,9 +84,9 @@ class Player
       digit = rand 1..8
       next if combination.include?(digit.to_s)
 
-      combination.concat(digit.to_s).to_i
+      combination.concat(digit.to_s)
     end
-    combination.to_i
+    combination
   end
 
   # TODO: Going to have to refactor because I just realize that guessing and making
@@ -83,6 +100,6 @@ class Player
       valid = true if guess.match?(/^\d\d\d\d$/)
       valid = false if guess.include?('0') || guess.include?('9')
     end
-    guess.to_i
+    guess
   end
 end
