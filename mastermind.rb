@@ -1,10 +1,40 @@
 class Game
   KEYS = [1, 2, 3, 4, 5, 6, 7, 8].freeze
 
-  def initialize(guesser, maker)
+  def initialize(guesser, maker, total_guesses)
     @guesser = guesser
     @maker = maker
+    @guesses_left = total_guesses
     @combination = ''
+    @current_guess = ''
+  end
+
+  def give_feedback_on_guess(player_guess) end
+
+  def check_correct_placements
+    total = 0
+    guess_copy = @current_guess
+    @combination.length.times do |index|
+      if @combination[index] == @current_guess[index]
+        total += 1
+        guess_copy = guess_copy.delete(@current_guess[index])
+      end
+    end
+    @current_guess = guess_copy
+    total
+  end
+
+  def check_incorrect_placements
+    total = 0
+    guess_copy = @current_guess
+    @current_guess.length.times do |index|
+      if @combination.include?(@current_guess[index])
+        total += 1
+        guess_copy = guess_copy.delete(@current_guess[index])
+      end
+    end
+    @current_guess = guess_copy
+    total
   end
 end
 
