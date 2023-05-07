@@ -21,6 +21,7 @@ class Game
       is_win = give_feedback_on_guess
       @guesses_left -= 1
     end
+    end_message(is_win)
   end
 
   private
@@ -31,7 +32,7 @@ class Game
     correct = check_correct_placements
     incorrect = check_incorrect_placements
     puts "Number of correct placement: #{correct}"
-    puts "Number of incorrect placement: #{incorrect}"
+    puts "Number of incorrect placement: #{incorrect} \n \n"
     false
   end
 
@@ -59,6 +60,11 @@ class Game
     end
     @current_guess = guess_copy
     total
+  end
+
+  def end_message(win)
+    puts "You did not win. The combination was #{@combination}" unless win
+    puts 'You guessed the combination! Nice.' if win
   end
 end
 
@@ -103,3 +109,9 @@ class Player
     guess
   end
 end
+
+combuter = Player.new('maker', true)
+human = Player.new('guesser', false)
+mastermind = Game.new(human, combuter, 12)
+
+mastermind.start
