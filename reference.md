@@ -23,6 +23,7 @@ check_correct_placements
 => total number of correct placements of correct digits
 check_incorrect_placements
 => total number of incorrect placements of correct digits
+end_message(win?)
 ```
 
 ```
