@@ -31,16 +31,19 @@ end_message(win?)
 Initialize
 make_combination
 ^ Just collected all the make-combination of computer and human
+guess_combination
+^ Just collected all the guess-combination of computer and human
 
 private
 
 make_combination_computer
+guess_combination_computer
 combination_human
 ```
 
 ## TODO
 
-1. Refactor getting combination for human
+1. Refactor getting combination for human ☑️ (*didn't need, just cleanup needed*)
 1. Prints history after every wrong guess
 1. Win/lose message ☑️
 1. Error messages for invalid guess (wrong digit used)

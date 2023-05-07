@@ -17,7 +17,7 @@ class Game
     until is_win
       break if @guesses_left.zero?
 
-      @current_guess = @guesser.make_combination
+      @current_guess = @guesser.guess_combination
       is_win = give_feedback_on_guess
       @guesses_left -= 1
     end
@@ -62,9 +62,9 @@ class Game
     total
   end
 
-  def end_message(win)
-    puts "You did not win. The combination was #{@combination}" unless win
-    puts 'You guessed the combination! Nice.' if win
+  def end_message(result)
+    puts "You did not win. The combination was #{@combination}" unless result
+    puts 'You guessed the combination! Nice.' if result
   end
 end
 
@@ -82,6 +82,12 @@ class Player
     combination_human # ! Don't forget to refactor
   end
 
+  def guess_combination
+    return guess_combination_computer if @is_computer
+
+    combination_human
+  end
+
   private
 
   def make_combination_computer
@@ -95,21 +101,23 @@ class Player
     combination
   end
 
-  # TODO: Going to have to refactor because I just realize that guessing and making
-  # TODO: a combination as a human player is the same.
+  def guess_combination_computer; end
+
   def combination_human
-    guess = ''
+    combination = ''
     valid = false
+    text = @role == 'guesser' ? 'Guess the' : 'Enter your'
     until valid
-      puts 'Guess the combination: '
-      guess = gets.chomp
-      valid = true if guess.match?(/^\d\d\d\d$/)
-      valid = false if guess.include?('0') || guess.include?('9')
+      puts "#{text} combination: "
+      combination = gets.chomp
+      valid = true if combination.match?(/^\d\d\d\d$/)
+      valid = false if combination.include?('0') || combination.include?('9')
     end
-    guess
+    combination
   end
 end
 
+# Just a simulation
 combuter = Player.new('maker', true)
 human = Player.new('guesser', false)
 mastermind = Game.new(human, combuter, 12)
