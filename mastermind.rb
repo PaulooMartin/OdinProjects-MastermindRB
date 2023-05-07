@@ -9,7 +9,14 @@ class Game
     @current_guess = ''
   end
 
-  def give_feedback_on_guess(player_guess) end
+  private
+
+  def give_feedback_on_guess
+    correct = check_correct_placements
+    incorrect = check_incorrect_placements
+    puts "Number of correct placement: #{correct}"
+    puts "Number of incorrect placement: #{incorrect}"
+  end
 
   def check_correct_placements
     total = 0
