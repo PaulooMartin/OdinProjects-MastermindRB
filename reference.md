@@ -41,7 +41,8 @@ combination_human
 
 1. Refactor getting combination for human
 1. Prints history after every wrong guess
-1. Win/lose message
+1. Win/lose message ☑️
 1. Error messages for invalid guess (wrong digit used)
-1. Switching roles
+1. Starting options (switching roles, humanvshuman)
 1. Computer (guesser) vs Human (maker)
+1. Computer guessing algorithm
