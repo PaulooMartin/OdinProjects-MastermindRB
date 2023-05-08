@@ -5,8 +5,8 @@ class Game
     @guesser = guesser
     @maker = maker
     @guesses_left = total_guesses
-    @combination = '1234'
-    @current_guess = '6785'
+    @combination = ''
+    @current_guess = ''
   end
 
   # ! Temp for now
@@ -37,8 +37,6 @@ class Game
     false
   end
 
-  # ! Refactor check-correct/incorrect-placements
-  # ! Mastermind actually does not work this way
   def check_correct_placements
     total = 0
     guess_copy = @current_guess
@@ -63,19 +61,6 @@ class Game
     end
     @current_guess = guess_copy
     total
-  end
-
-  def check_placements
-    feedback = []
-    @combination.length.times do |index|
-      unless @combination.include?(@current_guess[index])
-        feedback.push('wrong')
-        next
-      end
-      current = @combination[index] == @current_guess[index] ? 'good' : 'change'
-      feedback.push(current)
-    end
-    feedback.join(', ')
   end
 
   def end_message(result)
@@ -147,4 +132,4 @@ combuter = Player.new('maker', true)
 human = Player.new('guesser', false)
 mastermind = Game.new(human, combuter, 12)
 
-puts mastermind.check_placements
+mastermind.start
