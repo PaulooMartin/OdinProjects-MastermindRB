@@ -25,6 +25,7 @@ check_incorrect_placements
 => total number of incorrect placements of correct digits
 end_message(win?)
 start_message
+switch_roles
 ```
 
 ```
@@ -44,11 +45,8 @@ combination_human
 
 ## TODO
 
-1. Refactor getting combination for human ☑️ (_didn't need, just cleanup needed_)
 1. Prints history after every wrong guess
-1. Win/lose message ☑️
 1. Error messages for invalid guess (wrong digit used)
-1. Starting options (switching roles, humanvshuman)
-1. Computer (guesser) vs Human (maker)
+1. Starting options (switching roles? humanvshuman? computer vs human?)
+1. Computer (guesser) vs Human (maker) ☑️ Is now possible using switching roles
 1. Computer guessing algorithm
-1. Refactor checking of placements, the real Mastermind does not work the way I am doing it ☑️ What was I thinking? It was definitely right the first time already :)

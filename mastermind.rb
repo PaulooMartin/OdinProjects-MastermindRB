@@ -76,10 +76,19 @@ class Game
     puts "The code composes of 4 digits, from 1 to 8. You have a total of #{@guesses_left} guesses"
     puts "Goodluck! \n \n"
   end
+
+  def switch_roles
+    temp = @guesser
+    @guesser = @maker
+    @maker = temp
+
+    @maker.role = 'maker'
+    @guesser.role = 'guesser'
+  end
 end
 
 class Player
-  attr_accessor :role
+  attr_writer :role, :is_computer
 
   def initialize(initial_role, computer)
     @role = initial_role
