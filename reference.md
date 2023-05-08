@@ -23,7 +23,10 @@ check_correct_placements
 => total number of correct placements of correct digits
 check_incorrect_placements
 => total number of incorrect placements of correct digits
+check_placements
+=> feedback on each digit placement
 end_message(win?)
+start_message
 ```
 
 ```
@@ -50,4 +53,4 @@ combination_human
 1. Starting options (switching roles, humanvshuman)
 1. Computer (guesser) vs Human (maker)
 1. Computer guessing algorithm
-1. Refactor checking of placements, the real Mastermind does not work the way I am doing it
+1. Refactor checking of placements, the real Mastermind does not work the way I am doing it ☑️
