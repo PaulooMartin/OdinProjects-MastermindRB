@@ -12,6 +12,7 @@ class Game
   # ! Temp for now
   # ! For computer vs human for now
   def start
+    start_message
     @combination = @maker.make_combination
     is_win = false
     until is_win
@@ -65,6 +66,15 @@ class Game
   def end_message(result)
     puts "You did not win. The combination was #{@combination}" unless result
     puts 'You guessed the combination! Nice.' if result
+  end
+
+  def start_message
+    puts 'Welcome to Mastermind!'
+    sleep 1
+    puts 'In this game, you try to guess what the code-combination is'
+    sleep 1
+    puts "The code composes of 4 digits, from 1 to 8. You have a total of #{@guesses_left} guesses"
+    puts "Goodluck! \n \n"
   end
 end
 
