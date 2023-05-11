@@ -12,15 +12,15 @@ class Game
   # ! Temp for now
   # ! For computer vs human for now
   def start
-    start_message
     @combination = @maker.make_combination
     is_win = false
+    correct = 0
+    incorrect = 0
     until is_win
       break if @guesses_left.zero?
 
-      @current_guess = @guesser.guess_combination
-      is_win = give_feedback_on_guess
-      @guesses_left -= 1
+      @current_guess = @guesser.guess_combination(correct, incorrect)
+      is_win, correct, incorrect = give_feedback_on_guess
     end
     end_message(is_win)
   end
@@ -28,13 +28,14 @@ class Game
   private
 
   def give_feedback_on_guess
+    @guesses_left -= 1
     return true if @combination == @current_guess
 
     correct = check_correct_placements
     incorrect = check_incorrect_placements
     puts "Number of correct placement: #{correct}"
     puts "Number of incorrect placement: #{incorrect} \n \n"
-    false
+    [false, correct, incorrect]
   end
 
   def check_correct_placements
@@ -93,6 +94,11 @@ class Player
   def initialize(initial_role, computer)
     @role = initial_role
     @is_computer = computer
+    return unless @is_computer
+
+    @current_key = 0
+    @right_keys_and_positions = []
+    @locked_keys = []
   end
 
   def make_combination
@@ -101,8 +107,8 @@ class Player
     combination_human # ! Don't forget to refactor
   end
 
-  def guess_combination
-    return guess_combination_computer if @is_computer
+  def guess_combination(correct, incorrect)
+    return guess_combination_computer(correct, incorrect) if @is_computer
 
     combination_human
   end
@@ -120,7 +126,24 @@ class Player
     combination
   end
 
-  def guess_combination_computer; end
+  def guess_combination_computer(correct, incorrect)
+    combination = ''
+    4.times { combination.concat(@current_key.to_s) } if @right_digits.empty?
+    # call something to set combination unless rightdigits.empty?
+    # # Shifting right digit until right spot + fill in blanks with current_key
+    @current_key += 1 if @current_key < 8
+    p combination
+  end
+
+  def evaluate_feedback(correct, incorrect)
+    total = correct + incorrect
+    return if total.zero?
+
+    # call something if correct = 1 and rightdigits.empty? FIRST KEY FOUND
+    # call something if total = 4 and rightdigits.length < 3 NEXT KEY FOUND AND THE ONLY AVAIL POSITION LOGIC
+    # call something if total > rightdigits.length NEXT KEY FOUND
+    # # position of new key is everything else except the current positions of previous keys
+  end
 
   def combination_human
     combination = ''
@@ -137,8 +160,8 @@ class Player
 end
 
 # Just a simulation
-combuter = Player.new('maker', true)
-human = Player.new('guesser', false)
+combuter = Player.new('guesser', true)
+human = Player.new('maker', true)
 mastermind = Game.new(human, combuter, 12)
 
 mastermind.start
