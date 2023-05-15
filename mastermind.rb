@@ -1,16 +1,15 @@
 class Game
-  KEYS = [1, 2, 3, 4, 5, 6, 7, 8].freeze
+  attr_reader :current_guess
 
   def initialize(guesser, maker, total_guesses)
     @guesser = guesser
     @maker = maker
     @guesses_left = total_guesses
     @combination = ''
+    @combination_copy = ''
     @current_guess = ''
   end
 
-  # ! Temp for now
-  # ! For computer vs human for now
   def start
     @combination = @maker.make_combination
     is_win = false
@@ -40,27 +39,28 @@ class Game
 
   def check_correct_placements
     total = 0
-    guess_copy = @current_guess
+    @combination_copy = String.new(@combination)
     @combination.length.times do |index|
-      if @combination[index] == @current_guess[index]
-        total += 1
-        guess_copy = guess_copy.delete(@current_guess[index])
-      end
+      next unless @combination[index] == @current_guess[index]
+
+      total += 1
+      @current_guess[index] = 'a'
+      @combination_copy[index] = 'z'
     end
-    @current_guess = guess_copy
     total
   end
 
   def check_incorrect_placements
     total = 0
-    guess_copy = @current_guess
-    @current_guess.length.times do |index|
-      if @combination.include?(@current_guess[index])
+    @current_guess.length.times do |guess_index|
+      @combination_copy.length.times do |combination_index|
+        next unless @current_guess[guess_index] == @combination_copy[combination_index]
+
         total += 1
-        guess_copy = guess_copy.delete(@current_guess[index])
+        @current_guess[guess_index] = 'b'
+        @combination_copy[combination_index] = 'y'
       end
     end
-    @current_guess = guess_copy
     total
   end
 
@@ -94,11 +94,10 @@ class Player
   def initialize(initial_role, computer)
     @role = initial_role
     @is_computer = computer
-    return unless @is_computer
+    return unless computer
 
-    @current_key = 0
-    @right_keys_and_positions = []
-    @locked_keys = []
+    @possible_combinations = all_possible_combination
+    @first_guess = 0
   end
 
   def make_combination
@@ -118,42 +117,82 @@ class Player
   def make_combination_computer
     combination = ''
     until combination.length == 4
-      digit = rand 1..8
-      next if combination.include?(digit.to_s)
-
+      digit = rand 1..6
       combination.concat(digit.to_s)
     end
     combination
   end
 
   def guess_combination_computer(correct, incorrect)
-    combination = ''
-    4.times { combination.concat(@current_key.to_s) } if @right_digits.empty?
-    # call something to set combination unless rightdigits.empty?
-    # # Shifting right digit until right spot + fill in blanks with current_key
-    @current_key += 1 if @current_key < 8
-    p combination
+    if @first_guess.zero?
+      @first_guess += 1
+      return '1122'
+    end
+
+    last_guess_correct = correct
+    last_guess_incorrect = incorrect
+    remove_improbable_guesses(last_guess_correct, last_guess_incorrect)
+    @first_guess += 1
+    String.new(@possible_combinations[0])
   end
 
-  def evaluate_feedback(correct, incorrect)
-    total = correct + incorrect
-    return if total.zero?
+  def remove_improbable_guesses(last_correct, last_incorrect)
+    fake_combination = @first_guess == 1 ? '1122' : @possible_combinations[0]
+    @possible_combinations = @possible_combinations.keep_if do |code|
+      next if code == fake_combination
 
-    # call something if correct = 1 and rightdigits.empty? FIRST KEY FOUND
-    # call something if total = 4 and rightdigits.length < 3 NEXT KEY FOUND AND THE ONLY AVAIL POSITION LOGIC
-    # call something if total > rightdigits.length NEXT KEY FOUND
-    # # position of new key is everything else except the current positions of previous keys
+      correct, combination_mod, guess_mod = feedback_correct_placement(String.new(fake_combination), String.new(code))
+      incorrect = feedback_incorrect_placement(combination_mod, guess_mod)
+      correct == last_correct && incorrect == last_incorrect
+    end
+  end
+
+  def feedback_correct_placement(combination, guess)
+    total = 0
+    combination.length.times do |index|
+      next unless combination[index] == guess[index]
+
+      total += 1
+      guess[index] = 'a'
+      combination[index] = 'z'
+    end
+    [total, combination, guess]
+  end
+
+  def feedback_incorrect_placement(combination, guess)
+    total = 0
+    guess.length.times do |guess_index|
+      combination.length.times do |combination_index|
+        next unless guess[guess_index] == combination[combination_index]
+
+        total += 1
+        guess[guess_index] = 'b'
+        combination[combination_index] = 'y'
+      end
+    end
+    total
+  end
+
+  def all_possible_combination
+    combination = []
+    counter = 1111
+    while counter < 6667
+      combination.push(counter.to_s)
+      counter += 1
+    end
+    combination.keep_if do |element|
+      element.match?(/\A[1-6][1-6][1-6][1-6]\z/)
+    end
   end
 
   def combination_human
     combination = ''
     valid = false
-    text = @role == 'guesser' ? 'Guess the' : 'Enter your'
+    text = @role == 'guesser' ? 'Guess the' : 'Enter a valid'
     until valid
       puts "#{text} combination: "
       combination = gets.chomp
-      valid = true if combination.match?(/^\d\d\d\d$/)
-      valid = false if combination.include?('0') || combination.include?('9')
+      valid = combination.match?(/\A[1-6][1-6][1-6][1-6]\z/)
     end
     combination
   end
@@ -161,7 +200,7 @@ end
 
 # Just a simulation
 combuter = Player.new('guesser', true)
-human = Player.new('maker', true)
-mastermind = Game.new(human, combuter, 12)
+human = Player.new('maker', false)
+mastermind = Game.new(combuter, human, 8)
 
 mastermind.start
