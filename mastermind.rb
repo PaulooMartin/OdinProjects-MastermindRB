@@ -1,71 +1,75 @@
+module CheckPlacements
+  def check_correct_placements(combination, current_guess)
+    total = 0
+    combination.length.times { |index| total += 1 if combination[index] == current_guess[index] }
+    total
+  end
+
+  def check_incorrect_placements(combination, current_guess)
+    total = 0
+    current_guess.length.times do |guess_index|
+      combination.length.times do |combination_index|
+        next unless current_guess[guess_index] == combination[combination_index]
+
+        total += 1
+        combination[combination_index] = 'y'
+        break
+      end
+    end
+    total
+  end
+
+  def transform_equals_at_placements(combination, guess)
+    combination.length.times do |index|
+      next unless combination[index] == guess[index]
+
+      combination[index] = 'a'
+      guess[index] = 'z'
+    end
+  end
+end
+
 class Game
   attr_reader :current_guess
+  include CheckPlacements
 
   def initialize(guesser, maker, total_guesses)
     @guesser = guesser
     @maker = maker
     @guesses_left = total_guesses
-    @combination = ''
-    @combination_copy = ''
     @current_guess = ''
   end
 
   def start
-    @combination = @maker.make_combination
+    combination = @maker.make_combination
     is_win = false
     correct = 0
     incorrect = 0
     until is_win
       break if @guesses_left.zero?
 
-      @current_guess = @guesser.guess_combination(correct, incorrect)
-      is_win, correct, incorrect = give_feedback_on_guess
+      current_guess = @guesser.guess_combination(correct, incorrect)
+      is_win, correct, incorrect = give_feedback_on_guess(String.new(combination), current_guess)
     end
-    end_message(is_win)
+    end_message(is_win, combination)
   end
 
   private
 
-  def give_feedback_on_guess
+  def give_feedback_on_guess(combination, current_guess)
     @guesses_left -= 1
-    return true if @combination == @current_guess
+    return true if combination == current_guess
 
-    correct = check_correct_placements
-    incorrect = check_incorrect_placements
+    correct = check_correct_placements(combination, current_guess)
+    transform_equals_at_placements(combination, current_guess)
+    incorrect = check_incorrect_placements(combination, current_guess)
     puts "Number of correct placement: #{correct}"
     puts "Number of incorrect placement: #{incorrect} \n \n"
     [false, correct, incorrect]
   end
 
-  def check_correct_placements
-    total = 0
-    @combination_copy = String.new(@combination)
-    @combination.length.times do |index|
-      next unless @combination[index] == @current_guess[index]
-
-      total += 1
-      @current_guess[index] = 'a'
-      @combination_copy[index] = 'z'
-    end
-    total
-  end
-
-  def check_incorrect_placements
-    total = 0
-    @current_guess.length.times do |guess_index|
-      @combination_copy.length.times do |combination_index|
-        next unless @current_guess[guess_index] == @combination_copy[combination_index]
-
-        total += 1
-        @current_guess[guess_index] = 'b'
-        @combination_copy[combination_index] = 'y'
-      end
-    end
-    total
-  end
-
-  def end_message(result)
-    puts "You did not win. The combination was #{@combination}" unless result
+  def end_message(result, combination)
+    puts "You did not win. The combination was #{combination}" unless result
     puts 'You guessed the combination! Nice.' if result
   end
 
@@ -74,7 +78,7 @@ class Game
     sleep 1
     puts 'In this game, you try to guess what the code-combination is'
     sleep 1
-    puts "The code composes of 4 digits, from 1 to 8. You have a total of #{@guesses_left} guesses"
+    puts "The code composes of 4 digits, from 1 to 6. You have a total of #{@guesses_left} guesses"
     puts "Goodluck! \n \n"
   end
 
@@ -90,6 +94,7 @@ end
 
 class Player
   attr_writer :role, :is_computer
+  include CheckPlacements
 
   def initialize(initial_role, computer)
     @role = initial_role
@@ -141,36 +146,13 @@ class Player
     @possible_combinations = @possible_combinations.keep_if do |code|
       next if code == fake_combination
 
-      correct, combination_mod, guess_mod = feedback_correct_placement(String.new(fake_combination), String.new(code))
-      incorrect = feedback_incorrect_placement(combination_mod, guess_mod)
+      correct = check_correct_placements(fake_combination, code)
+      copy_fake = String.new(fake_combination)
+      copy_code = String.new(code)
+      transform_equals_at_placements(copy_fake, copy_code)
+      incorrect = check_incorrect_placements(copy_fake, copy_code)
       correct == last_correct && incorrect == last_incorrect
     end
-  end
-
-  def feedback_correct_placement(combination, guess)
-    total = 0
-    combination.length.times do |index|
-      next unless combination[index] == guess[index]
-
-      total += 1
-      guess[index] = 'a'
-      combination[index] = 'z'
-    end
-    [total, combination, guess]
-  end
-
-  def feedback_incorrect_placement(combination, guess)
-    total = 0
-    guess.length.times do |guess_index|
-      combination.length.times do |combination_index|
-        next unless guess[guess_index] == combination[combination_index]
-
-        total += 1
-        guess[guess_index] = 'b'
-        combination[combination_index] = 'y'
-      end
-    end
-    total
   end
 
   def all_possible_combination
