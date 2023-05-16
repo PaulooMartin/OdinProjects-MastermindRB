@@ -9,7 +9,13 @@ Code that do not need to be documented or are understandable-on-read just don't 
 ```
 
 ## Code
-
+```
+>- module CheckPlacements
+check_correct_placements
+check_incorrect_placements
+transform_equals_at_placements
+^ Accompanies checking of incorrect placement so to comparing those numbers that are already in the right place
+```
 ```
 >- Class Game
 Initialize
@@ -19,12 +25,11 @@ start
 private
 
 give_feedback_on_guess
-check_correct_placements
-=> total number of correct placements of correct digits
-check_incorrect_placements
-=> total number of incorrect placements of correct digits
-end_message(win?)
+end_message
 start_message
+start_message_creator
+start_message_guesser
+human_choose_role
 switch_roles
 ```
 
@@ -40,13 +45,9 @@ private
 
 make_combination_computer
 guess_combination_computer
+remove_improbable_guesses
+^ Computer's algorithm for making a guess
+all_possible_combination
+^ Generates initial set of guesses for the computer
 combination_human
 ```
-
-## TODO
-
-1. Prints history after every wrong guess
-1. Error messages for invalid guess (wrong digit used)
-1. Starting options (switching roles? humanvshuman? computer vs human?)
-1. Computer (guesser) vs Human (maker) ☑️ Is now possible using switching roles
-1. Computer guessing algorithm
