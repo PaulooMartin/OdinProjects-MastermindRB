@@ -30,14 +30,14 @@ module CheckPlacements
 end
 
 class Game
-  attr_reader :current_guess
   include CheckPlacements
+  attr_reader :current_guess
 
-  def initialize(guesser, maker, total_guesses)
-    @guesser = guesser
-    @maker = maker
+  def initialize(total_guesses)
+    @guesser = Player.new('guesser', false)
+    @maker = Player.new('maker', true)
     @guesses_left = total_guesses
-    @current_guess = ''
+    start_message
   end
 
   def start
@@ -58,6 +58,7 @@ class Game
 
   def give_feedback_on_guess(combination, current_guess)
     @guesses_left -= 1
+    puts "The combination you chose is #{current_guess}"
     return true if combination == current_guess
 
     correct = check_correct_placements(combination, current_guess)
@@ -69,17 +70,49 @@ class Game
   end
 
   def end_message(result, combination)
-    puts "You did not win. The combination was #{combination}" unless result
-    puts 'You guessed the combination! Nice.' if result
+    name = @guesser.is_computer ? 'Computer' : 'You'
+    puts "#{name} did not win. The combination was #{combination}" unless result
+    puts "#{name} guessed the combination! GGS!" if result
   end
 
   def start_message
     puts 'Welcome to Mastermind!'
-    sleep 1
-    puts 'In this game, you try to guess what the code-combination is'
-    sleep 1
-    puts "The code composes of 4 digits, from 1 to 6. You have a total of #{@guesses_left} guesses"
+    if human_choose_role == 'creator'
+      switch_roles
+      start_message_creator
+    else
+      start_message_guesser
+    end
     puts "Goodluck! \n \n"
+  end
+
+  def start_message_creator
+    @guesses_left = 5
+    puts 'Welcome code creator!'
+    sleep 2
+    puts 'You are going to create a secret code - a 4 digit code with digits from 1 to 6. Example: 1256'
+    sleep 2
+    puts "The computer, your enemy, will try to guess your code and he has #{@guesses_left} tries"
+    sleep 2
+  end
+
+  def start_message_guesser
+    puts 'Welcome code guesser!'
+    sleep 2
+    puts 'You are going to guess the secret code - a 4 digit code with digits from 1 to 6. Example: 1256'
+    sleep 2
+    puts "You will try to guess the code and you have #{@guesses_left} tries"
+    sleep 2
+  end
+
+  def human_choose_role
+    puts 'Do you want to be guesser or creator? (guesser/creator)'
+    human_role = gets.chomp.downcase
+    until %w[guesser creator].include?(human_role)
+      puts 'What\'s it going to be? guesser or creator?'
+      human_role = gets.chomp.downcase
+    end
+    human_role
   end
 
   def switch_roles
@@ -93,8 +126,10 @@ class Game
 end
 
 class Player
-  attr_writer :role, :is_computer
   include CheckPlacements
+  attr_writer :role
+  attr_reader :is_computer
+
 
   def initialize(initial_role, computer)
     @role = initial_role
@@ -108,7 +143,7 @@ class Player
   def make_combination
     return make_combination_computer if @is_computer
 
-    combination_human # ! Don't forget to refactor
+    combination_human
   end
 
   def guess_combination(correct, incorrect)
@@ -168,9 +203,9 @@ class Player
   end
 
   def combination_human
+    text = @role == 'guesser' ? 'Guess the' : 'Enter a valid secret'
     combination = ''
     valid = false
-    text = @role == 'guesser' ? 'Guess the' : 'Enter a valid'
     until valid
       puts "#{text} combination: "
       combination = gets.chomp
@@ -181,8 +216,6 @@ class Player
 end
 
 # Just a simulation
-combuter = Player.new('guesser', true)
-human = Player.new('maker', false)
-mastermind = Game.new(combuter, human, 8)
+mastermind = Game.new(12)
 
 mastermind.start
